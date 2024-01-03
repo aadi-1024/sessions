@@ -2,7 +2,6 @@ package sessions
 
 import (
 	"errors"
-	"fmt"
 	"time"
 )
 
@@ -15,30 +14,19 @@ type Store interface {
 
 	Delete(sid string) error
 
-	Expire()
+	Expire(duration time.Duration)
 }
 
 // ideally the implementation should be in a separate file
 
 type MemStore struct {
-	expiry time.Duration
-	data   map[string]Session
+	data map[string]Session
 }
 
-func NewMemStore(exp time.Duration) *MemStore {
+func NewMemStore() *MemStore {
 	m := &MemStore{
-		expiry: exp,
-		data:   make(map[string]Session),
+		data: make(map[string]Session),
 	}
-	go func() {
-		for {
-			time.Sleep(30 * time.Second)
-			m.Expire()
-			for k, _ := range m.data {
-				fmt.Println(k)
-			}
-		}
-	}()
 	return m
 }
 
@@ -68,9 +56,9 @@ func (m *MemStore) Delete(sid string) error {
 	return nil
 }
 
-func (m *MemStore) Expire() {
+func (m *MemStore) Expire(dur time.Duration) {
 	for k := range m.data {
-		if m.data[k].Expired(m.expiry) {
+		if m.data[k].Expired(dur) {
 			delete(m.data, k)
 		}
 	}
