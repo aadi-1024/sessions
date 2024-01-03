@@ -1,31 +1,18 @@
-package sessions
+package memstore
 
 import (
 	"errors"
+	"github.com/aadi-1024/sessions/session"
 	"time"
 )
 
-type Store interface {
-	//Store save a session
-	Save(sid string, created time.Time) error
-
-	//Load loads a session from the store, returns nil if not present
-	Load(sid string) Session
-
-	Delete(sid string) error
-
-	Expire(duration time.Duration)
-}
-
-// ideally the implementation should be in a separate file
-
 type MemStore struct {
-	data map[string]Session
+	data map[string]session.Session
 }
 
 func NewMemStore() *MemStore {
 	m := &MemStore{
-		data: make(map[string]Session),
+		data: make(map[string]session.Session),
 	}
 	return m
 }
@@ -33,13 +20,13 @@ func NewMemStore() *MemStore {
 func (m *MemStore) Save(sid string, created time.Time) error {
 	_, ok := m.data[sid]
 	if !ok {
-		m.data[sid] = NewMapSession(sid, created)
+		m.data[sid] = session.NewMapSession(sid, created)
 		return nil
 	}
 	return errors.New("session with given id already exists")
 }
 
-func (m *MemStore) Load(sid string) Session {
+func (m *MemStore) Load(sid string) session.Session {
 	v, ok := m.data[sid]
 	if !ok {
 		return nil

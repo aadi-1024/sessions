@@ -2,6 +2,7 @@ package sessions
 
 import (
 	"crypto/rand"
+	"github.com/aadi-1024/sessions/stores"
 	"log"
 	"time"
 )
@@ -9,15 +10,12 @@ import (
 type SessionManager struct {
 	//Name describes the cookie name
 	Name   string
-	store  Store
+	store  stores.Store
 	Expiry time.Duration
 }
 
 // NewSessionManager returns a session manager and the expiry routine
-func NewSessionManager(exp time.Duration, store Store) (*SessionManager, func(time.Duration)) {
-	if store == nil {
-		store = NewMemStore()
-	}
+func NewSessionManager(exp time.Duration, store stores.Store) (*SessionManager, func(time.Duration)) {
 	ses := &SessionManager{store: store}
 	f := func(interval time.Duration) {
 		for {

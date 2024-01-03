@@ -46,9 +46,8 @@ func SessionsMiddleware(s *SessionManager) func(handler http.Handler) http.Handl
 				if err != nil {
 					fmt.Println(err)
 				}
-				h := s.store.Load(string(b))
 
-				rWithSession = r.WithContext(context.WithValue(r.Context(), s.Name, h))
+				rWithSession = r.WithContext(context.WithValue(r.Context(), s.Name, s.store.Load(string(b))))
 			}
 
 			next.ServeHTTP(w, rWithSession)
